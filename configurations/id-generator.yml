@@ -1,0 +1,29 @@
+
+server:
+  port: 9080
+
+security.basic.enabled: false
+
+---
+spring:
+  profiles: second
+
+server:
+  port: 9081
+
+eureka:
+  instance:
+    metadataMap:
+      version: '2.0.0'
+
+---
+spring:
+  profiles: third
+
+server:
+  port: 9082
+
+eureka:
+  instance:
+    metadataMap:
+      version: '2.1.0'

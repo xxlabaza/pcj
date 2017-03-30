@@ -1,0 +1,44 @@
+
+server:
+  port: 9001
+
+security:
+  user:
+    name:     ${eureka.name}
+    password: ${eureka.password}
+
+eureka:
+  # instance:
+  #   waitTimeInMsWhenSyncEmpty: 0
+  client:
+    preferSameZone:     false
+    fetchRegistry:      false
+    registerWithEureka: false
+
+# app.eureka:
+#     activeColors:
+#       popa:  { blue: false, green: true }
+
+---
+spring:
+  profiles: zone1
+
+eureka:
+  client:
+    fetchRegistry:      true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone:  http://${eureka.name}:${eureka.password}@${eureka.zone2.host:localhost}:${server.port}/eureka/
+      zone1:        http://${eureka.name}:${eureka.password}@${eureka.zone2.host:localhost}:${server.port}/eureka/
+
+---
+spring:
+  profiles: zone2
+
+eureka:
+  client:
+    fetchRegistry:      true
+    registerWithEureka: true
+    serviceUrl:
+      defaultZone:  http://${eureka.name}:${eureka.password}@${eureka.zone1.host:localhost}:${server.port}/eureka/
+      zone2:        http://${eureka.name}:${eureka.password}@${eureka.zone1.host:localhost}:${server.port}/eureka/

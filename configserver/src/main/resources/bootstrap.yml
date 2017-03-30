@@ -1,0 +1,37 @@
+
+project:
+  artifactId:   ''
+  name:         ''
+  version:      ''
+  description:  ''
+info:
+  build:
+    artifact: @project.artifactId@
+    name: @project.name@
+    description: @project.description@
+    version: @project.version@
+
+spring:
+  application:
+    name: configserver  # по этому имени, по умолчанию, все остальные сервисы будут исать канфиг сервер. Иначе, надо у всех клиентов менять spring.cloud.config.discovery.serviceId
+  profiles.active: native
+  cloud:
+    config:
+      failFast: true
+      server:
+        bootstrap: true # флаг говорит серверу, что он должен конфигурировать себя из собственного репозитория
+        native:
+          searchLocations: file:${app.folder}/../configurations
+
+encrypt:
+  failOnError: true
+# "keystore.jks" generated with:
+#
+# keytool -genkeypair -alias ConfigServerKeyStoreAlias -keyalg RSA \
+#   -dname "CN=Config Server,OU=Unit,O=GridDynamics,L=SPb,S=State,C=RU" \
+#   -keypass secret_password -keystore keystore.jks -storepass keystore_password
+  keyStore:
+    location:   classpath:/keystore.jks
+    password:   keystore_password
+    alias:      ConfigServerKeyStoreAlias
+    secret:     secret_password

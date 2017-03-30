@@ -1,0 +1,14 @@
+
+server:
+  port: 9000
+
+security:
+  user:
+    name: configserver
+    password: password
+
+eureka:
+  instance:
+    metadataMap:
+      user:     ${security.user.name}
+      password: ${security.user.password}

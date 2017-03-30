@@ -1,0 +1,19 @@
+
+server:
+  port: 9002
+
+security.basic.enabled: false
+
+zuul:
+  ignoredServices: '*'
+  prefix: /api
+  routes:
+    facade: /facade/**
+
+
+app:
+  metadata:
+    balancing:
+      rules:
+        id-generator:
+          "[1.0.0]": 50

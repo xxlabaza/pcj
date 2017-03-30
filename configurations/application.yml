@@ -1,0 +1,48 @@
+
+#
+# Common properties for all
+#
+
+info:
+  eureka:
+    region: ${eureka.client.region}
+    zone:   ${eureka.instance.metadataMap.zone}
+
+management:
+  context-path: '/admin'
+  security:
+    enabled: false
+
+endpoints:
+  restart:
+    enabled: true
+  shutdown:
+    enabled: true
+  health:
+    rabbit.enabled: true
+    sensitive: false # to see the health details
+
+spring:
+  jmx.enable: false
+
+eureka:
+  name:     eurekaserver
+  password: password
+  instance:
+    hostname: ${HOSTNAME:localhost} # try to get OS ENVIRONMENT variable
+    # preferIpAddress: true
+    statusPageUrlPath:  ${management.context-path}/info
+    healthCheckUrlPath: ${management.context-path}/health
+    # metadataMap:
+    #   zone: ${spring.profiles.active:none} # active profile is zone name
+  client:
+    # region: my_region
+    # availabilityZones:
+    #   my_region: ${eureka.instance.metadataMap.zone},zone1,zone2 # list of available zones
+    serviceUrl:
+      defaultZone:  http://${eureka.name}:${eureka.password}@${eureka.zone1.host:localhost}:9001/eureka/
+      zone1:        http://${eureka.name}:${eureka.password}@${eureka.zone1.host:localhost}:9001/eureka/
+      zone2:        http://${eureka.name}:${eureka.password}@${eureka.zone2.host:localhost}:9001/eureka/
+
+ribbon:
+  EnableZoneAffinity: true
