@@ -13,31 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.xxlabaza.test.pcj.zuul.ribbon.predicate;
+package ru.xxlabaza.test.pcj.balancing.predicate;
 
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UP;
 import static java.util.stream.Collectors.toSet;
-import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreTargetServiceVersionExtractorFilter.TARGET_SERVICE_VERSION_KEY;
 
-import com.netflix.appinfo.InstanceInfo;
-import com.netflix.loadbalancer.Server;
-import com.netflix.zuul.context.RequestContext;
+import com.netflix.loadbalancer.AbstractServerPredicate;
+import com.netflix.loadbalancer.PredicateKey;
+import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient.EurekaServiceInstance;
 import org.springframework.stereotype.Component;
-import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties;
-import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties.Range;
+import ru.xxlabaza.test.pcj.balancing.MetadataBalancingProperties;
+import ru.xxlabaza.test.pcj.balancing.MetadataBalancingProperties.Range;
+import ru.xxlabaza.test.pcj.balancing.PredicateContextHolder;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Random;
-import java.util.Set;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
@@ -45,7 +44,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class MetadataVersionPredicate extends AbstractPredicate {
+public class MetadataVersionPredicate extends AbstractServerPredicate {
 
   public final static String CURRENT_REQUEST_CONTEXT_VERSION;
 
@@ -62,28 +61,20 @@ public class MetadataVersionPredicate extends AbstractPredicate {
   @Autowired
   private DiscoveryClient discoveryClient;
 
-  public MetadataVersionPredicate() {
-    super(500);
-  }
-
   @Override
-  protected boolean shouldApply(RequestContext requestContext) {
-    val rules = metadataBalancingProperties.getRules();
-    val serviceId = requestContext.getOrDefault("serviceId", "").toString();
-    return (rules != null && rules.containsKey(serviceId)) ||
-           (requestContext.containsKey(TARGET_SERVICE_VERSION_KEY) && isHeaderVersionRequest());
-  }
+  public boolean apply(PredicateKey predicateKey) {
+    val server = predicateKey.getServer();
+    if (!(server instanceof DiscoveryEnabledServer)) {
+      return true;
+    }
+    val instanceInfo = ((DiscoveryEnabledServer) server).getInstanceInfo();
 
-  @Override
-  protected boolean apply(Server server, InstanceInfo instanceInfo) {
     val appName = instanceInfo.getAppName().toLowerCase();
     val appVersion = instanceInfo.getMetadata().getOrDefault("version", "0");
     log.debug("Checking service '{}:{}'", appName, appVersion);
 
     val requestContextVersion = getRequestContextServiceVersion(appName, appVersion);
-    val result =  requestContextVersion != null
-                  ? requestContextVersion.equals(appVersion)
-                  : true;
+    val result = requestContextVersion.equals(appVersion);
 
     if (result) {
       log.info("Service '{}:{}' was chosen", appName, appVersion);
@@ -94,9 +85,9 @@ public class MetadataVersionPredicate extends AbstractPredicate {
   }
 
   private String getRequestContextServiceVersion(String appName, String appVersion) {
-    val requestContext = RequestContext.getCurrentContext();
-    if (requestContext.containsKey(CURRENT_REQUEST_CONTEXT_VERSION)) {
-      val version = requestContext.get(CURRENT_REQUEST_CONTEXT_VERSION).toString();
+    PredicateContextHolder currentContext = PredicateContextHolder.getCurrentContext();
+    if (currentContext.containsKey(CURRENT_REQUEST_CONTEXT_VERSION)) {
+      val version = currentContext.getString(CURRENT_REQUEST_CONTEXT_VERSION);
       log.debug("Request context version is {}", version);
       return version;
     }
@@ -118,30 +109,11 @@ public class MetadataVersionPredicate extends AbstractPredicate {
         .orElse(appVersion);
     log.debug("Latest version of {} is {}", appName, latestVersion);
 
-    val targetVersion = requestContext.getOrDefault(TARGET_SERVICE_VERSION_KEY, "").toString();
-    if (!targetVersion.isEmpty()) {
-      if (targetVersion.equalsIgnoreCase("latest")) {
-        log.debug("Set context version for {} as {} (the latest)", appName, latestVersion);
-        requestContext.set(CURRENT_REQUEST_CONTEXT_VERSION, latestVersion);
-        return latestVersion;
-      }
-      if (isHeaderVersionRequest()) {
-        log.debug("Header version detected, trying to find best matching version...");
-        val version = getBestMatchingVersion(availableVersions, latestVersion, targetVersion);
-        log.debug("Set context version for {} as {}", appName, version);
-        requestContext.set(CURRENT_REQUEST_CONTEXT_VERSION, version);
-        return version;
-      }
-      if (!isMigration(appName)) {
-        availableVersions.removeIf(it -> !it.startsWith(targetVersion));
-      }
-    }
-
     val trafficRules = metadataBalancingProperties.getRules();
     if (trafficRules == null || !trafficRules.containsKey(appName)) {
-      requestContext.set(CURRENT_REQUEST_CONTEXT_VERSION, appVersion);
       log.debug("No traffic rules for {}, set context version as {}",
-                appName, appVersion);
+               appName, appVersion);
+      currentContext.put(CURRENT_REQUEST_CONTEXT_VERSION, appVersion);
       return appVersion;
     }
 
@@ -159,6 +131,7 @@ public class MetadataVersionPredicate extends AbstractPredicate {
     val bound = trafficRules.get(appName).values().stream().mapToInt(it -> it).sum();
     val value = RANDOM.nextInt(bound);
     log.debug("Random value is {}", value);
+
     val version = ranges
         .entrySet()
         .stream()
@@ -172,27 +145,8 @@ public class MetadataVersionPredicate extends AbstractPredicate {
         .orElse(latestVersion);
 
     log.debug("Set context version for {} as {}", appName, version);
-    requestContext.set(CURRENT_REQUEST_CONTEXT_VERSION, version);
+    currentContext.put(CURRENT_REQUEST_CONTEXT_VERSION, version);
     return version;
-  }
-
-  private boolean isHeaderVersionRequest() {
-    val requestContext = RequestContext.getCurrentContext();
-    val request = requestContext.getRequest();
-    val targetServiceVersion = metadataBalancingProperties.getHeaderName();
-    return request.getHeader(targetServiceVersion) != null;
-  }
-
-  private String getBestMatchingVersion(Set<String> available, String latest, String version) {
-    if (available.contains(version)) {
-      return version;
-    }
-    return available.stream()
-        .filter(it -> it.startsWith(version))
-        .map(DefaultArtifactVersion::new)
-        .max(Comparator.naturalOrder())
-        .map(DefaultArtifactVersion::toString)
-        .orElse(latest);
   }
 
   private boolean isMigration(String appName) {

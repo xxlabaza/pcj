@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.xxlabaza.test.pcj.zuul.ribbon;
+package ru.xxlabaza.test.pcj.balancing;
 
 
 import com.netflix.loadbalancer.AbstractServerPredicate;
 import com.netflix.loadbalancer.CompositePredicate;
-import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.xxlabaza.test.pcj.zuul.ribbon.predicate.AbstractPredicate;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,14 +34,7 @@ public class JCPenneyPredicateBasedRule extends ZoneAvoidanceRule {
   private CompositePredicate predicate;
 
   @Autowired
-  private List<AbstractPredicate> predicates;
-
-  @Override
-  public Server choose(Object key) {
-    Server server = super.choose(key);
-    PredicateContextHolder.remove();
-    return server;
-  }
+  private List<AbstractServerPredicate> predicates;
 
   @Override
   public AbstractServerPredicate getPredicate() {
@@ -55,11 +45,8 @@ public class JCPenneyPredicateBasedRule extends ZoneAvoidanceRule {
   }
 
   private CompositePredicate createPredicate() {
-    Collections.sort(predicates);
-
-    LinkedList<AbstractServerPredicate> linkedList = new LinkedList<>(predicates);
+    val linkedList = new LinkedList<>(predicates);
     linkedList.addLast(super.getPredicate());
-
     val array = linkedList.toArray(new AbstractServerPredicate[linkedList.size()]);
     return CompositePredicate.withPredicates(array).build();
   }

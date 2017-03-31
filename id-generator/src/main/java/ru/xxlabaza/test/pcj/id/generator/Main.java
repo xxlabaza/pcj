@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,8 @@
 package ru.xxlabaza.test.pcj.id.generator;
 
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 29.03.2017
  */
+@Slf4j
 @RestController
 @EnableEurekaClient
 @SpringBootApplication
@@ -35,8 +38,12 @@ public class Main {
     SpringApplication.run(Main.class, args);
   }
 
+  @Value("${eureka.instance.metadataMap.version:0}")
+  private String version;
+
   @RequestMapping("/")
   public String generateId() {
+    log.error("Version: " + version);
     return UUID.randomUUID().toString();
   }
 }

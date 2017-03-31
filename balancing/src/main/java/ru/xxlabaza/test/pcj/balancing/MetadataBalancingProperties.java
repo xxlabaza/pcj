@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.xxlabaza.test.pcj.zuul.ribbon;
+package ru.xxlabaza.test.pcj.balancing;
 
 import static java.util.stream.Collectors.toMap;
 
-import javax.annotation.PostConstruct;
 import lombok.Data;
 import lombok.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
@@ -38,7 +38,6 @@ import java.util.Map.Entry;
 @ConfigurationProperties(prefix = "app.metadata.balancing")
 public class MetadataBalancingProperties {
 
-  private String headerName = "X-Metadata-Service-Version";
   private Map<String, Map<String, Integer>> rules;
   private Map<String, Map<String, Range>> ranges;
 

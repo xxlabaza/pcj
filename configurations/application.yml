@@ -33,8 +33,8 @@ eureka:
     # preferIpAddress: true
     statusPageUrlPath:  ${management.context-path}/info
     healthCheckUrlPath: ${management.context-path}/health
-    # metadataMap:
-    #   zone: ${spring.profiles.active:none} # active profile is zone name
+    metadataMap:
+      zone: ${app.zone:none} # active profile is zone name
   client:
     # region: my_region
     # availabilityZones:

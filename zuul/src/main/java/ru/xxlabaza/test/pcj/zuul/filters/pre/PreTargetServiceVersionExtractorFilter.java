@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,12 +18,13 @@ package ru.xxlabaza.test.pcj.zuul.filters.pre;
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
 
 import com.netflix.zuul.context.RequestContext;
-import java.util.regex.Pattern;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
 import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties;
+
+import java.util.regex.Pattern;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>

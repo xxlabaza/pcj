@@ -4,6 +4,16 @@ server:
 
 security.basic.enabled: false
 
+logging.level:
+  ru.xxlabaza.test.pcj.balancing.predicate: DEBUG
+
+app:
+  metadata:
+    balancing:
+      rules:
+        id-generator:
+          "[2.0.0]": 50
+
 ---
 spring:
   profiles: second

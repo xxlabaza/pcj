@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,11 +38,12 @@ import com.netflix.discovery.shared.Application;
 import com.netflix.discovery.shared.Applications;
 import com.netflix.loadbalancer.AbstractServerList;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class DiscoveryEnabledServerList extends AbstractServerList<DiscoveryEnabledServer> {

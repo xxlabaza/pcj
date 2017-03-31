@@ -15,7 +15,6 @@
  */
 package ru.xxlabaza.test.pcj.zuul.proxy;
 
-import java.util.Set;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.trace.TraceRepository;
@@ -32,6 +31,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import ru.xxlabaza.test.pcj.zuul.AppProperties;
+
+import java.util.Set;
 
 @Configuration
 class ProxyRequestConfiguration {

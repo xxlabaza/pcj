@@ -4,6 +4,9 @@ server:
 
 security.basic.enabled: false
 
+logging.level:
+  ru.xxlabaza.test.pcj.zuul.ribbon.predicate: DEBUG
+
 zuul:
   ignoredServices: '*'
   prefix: /api
@@ -15,5 +18,6 @@ app:
   metadata:
     balancing:
       rules:
-        id-generator:
-          "[1.0.0]": 50
+        facade:
+          '[1.0.0]': 0
+          # '[null]': 100

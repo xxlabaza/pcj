@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,7 @@ class ColorBasedTrafficRulePredicate extends AbstractPredicate {
   private AppProperties appProperties;
 
   ColorBasedTrafficRulePredicate() {
-    super(500);
+    super(700);
   }
 
   @Override

@@ -112,3 +112,4 @@ nb-configuration.xml
 *.txt*
 .DS_Store
 .vscode/
+logs/

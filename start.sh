@@ -38,7 +38,7 @@ function wait_service () {
         fi
 
         let COUNTER=COUNTER+1
-        if [ $COUNTER -eq 12 ]
+        if [ $COUNTER -eq 40 ]
         then
             echo "Service ${SERVICE_NAME} is starting too much long, terminating it..."
             exit 1
