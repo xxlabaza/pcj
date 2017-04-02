@@ -38,7 +38,9 @@ import java.util.Map.Entry;
 @ConfigurationProperties(prefix = "app.metadata.balancing")
 public class MetadataBalancingProperties {
 
-  private String headerName = "X-Metadata-Service-Version";
+  private String headerName = "X-Service-Version";
+  private String requestCookieName = "SVCVER";
+  private String responseCookieName = "ExecutedServiceVersion";
   private Map<String, Map<String, Integer>> rules;
   private Map<String, Map<String, Range>> ranges;
 

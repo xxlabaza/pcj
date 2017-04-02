@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,12 +30,12 @@ import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties;
  * @since 24.03.2017
  */
 @Component
-class PostSetServiceVersionHeaderFilter extends AbstractZuulFilter {
+class PostSetServiceVersionCookieFilter extends AbstractZuulFilter {
 
   @Autowired
   private MetadataBalancingProperties metadataBalancingProperties;
 
-  PostSetServiceVersionHeaderFilter() {
+  PostSetServiceVersionCookieFilter() {
     super(DURING_ROUTING_HANDLING, 2002);
   }
 
@@ -47,9 +47,14 @@ class PostSetServiceVersionHeaderFilter extends AbstractZuulFilter {
 
   @Override
   protected void execute() {
-    RequestContext requestContext = RequestContext.getCurrentContext();
-    val serviceVersionHeaderName = metadataBalancingProperties.getHeaderName();
-    val serviceVersionHeaderValue = requestContext.get(CURRENT_REQUEST_CONTEXT_VERSION).toString();
-    requestContext.addZuulResponseHeader(serviceVersionHeaderName, serviceVersionHeaderValue);
+    val requestContext = RequestContext.getCurrentContext();
+
+    val cookie = new StringBuilder()
+        .append(metadataBalancingProperties.getResponseCookieName())
+        .append('=')
+        .append(requestContext.get(CURRENT_REQUEST_CONTEXT_VERSION))
+        .toString();
+
+    requestContext.addZuulResponseHeader("Set-Cookie", cookie);
   }
 }

@@ -18,6 +18,7 @@ package ru.xxlabaza.test.pcj.zuul.filters.pre;
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
 
 import com.netflix.zuul.context.RequestContext;
+import java.util.Optional;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,6 +26,8 @@ import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
 import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties;
 
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import javax.servlet.http.Cookie;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
@@ -45,30 +48,55 @@ public class PreTargetServiceVersionExtractorFilter extends AbstractZuulFilter {
 
   @Override
   public boolean shouldFilter() {
-    val request = RequestContext.getCurrentContext().getRequest();
-    val uri = request.getRequestURI();
-    val targetServiceVersion = metadataBalancingProperties.getHeaderName();
-    return request.getHeader(targetServiceVersion) != null ||
-           VERSION_URI_PATTERN.matcher(uri).matches();
+    return true;
   }
 
   @Override
   protected void execute() {
     val requestContext = RequestContext.getCurrentContext();
-    val request = requestContext.getRequest();
 
-    val targetServiceVersion = metadataBalancingProperties.getHeaderName();
-    String value = request.getHeader(targetServiceVersion);
-    if (value != null) {
-      requestContext.set(TARGET_SERVICE_VERSION_KEY, value);
+    val headerValue = getServiceVersionHeaderValue();
+    if (headerValue.isPresent()) {
+      requestContext.set(TARGET_SERVICE_VERSION_KEY, headerValue.get());
       return;
     }
 
+    val cookieValue = getServiceVersionCookieValue();
+    if (cookieValue.isPresent()) {
+      requestContext.set(TARGET_SERVICE_VERSION_KEY, cookieValue.get());
+      return;
+    }
+
+    val uriValue = getServiceVersionUriValue();
+    if (uriValue.isPresent()) {
+      requestContext.set(TARGET_SERVICE_VERSION_KEY, uriValue.get());
+    }
+  }
+
+  private Optional<String> getServiceVersionHeaderValue() {
+    val request = RequestContext.getCurrentContext().getRequest();
+    val targetServiceVersion = metadataBalancingProperties.getHeaderName();
+    val headerValue = request.getHeader(targetServiceVersion);
+    return Optional.ofNullable(headerValue);
+  }
+
+  private Optional<String> getServiceVersionUriValue() {
+    val request = RequestContext.getCurrentContext().getRequest();
     val uri = request.getRequestURI();
     val matcher = VERSION_URI_PATTERN.matcher(uri);
-    if (matcher.find()) {
-      value = matcher.group(1);
-    }
-    requestContext.set(TARGET_SERVICE_VERSION_KEY, value);
+    return matcher.find()
+           ? Optional.of(matcher.group(1))
+           : Optional.empty();
+  }
+
+  private Optional<String> getServiceVersionCookieValue() {
+    val request = RequestContext.getCurrentContext().getRequest();
+    val requestCookieName = metadataBalancingProperties.getRequestCookieName();
+    return Optional.ofNullable(request.getCookies())
+        .flatMap(cookies -> Stream.of(cookies)
+            .filter(it -> requestCookieName.equalsIgnoreCase(it.getName()))
+            .findAny()
+            .map(Cookie::getValue)
+        );
   }
 }

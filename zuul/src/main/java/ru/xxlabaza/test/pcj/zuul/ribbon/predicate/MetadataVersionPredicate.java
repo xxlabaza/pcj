@@ -35,8 +35,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Stream;
+import javax.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -180,7 +183,14 @@ public class MetadataVersionPredicate extends AbstractPredicate {
     val requestContext = RequestContext.getCurrentContext();
     val request = requestContext.getRequest();
     val targetServiceVersion = metadataBalancingProperties.getHeaderName();
-    return request.getHeader(targetServiceVersion) != null;
+    val requestCookieName = metadataBalancingProperties.getRequestCookieName();
+    return request.getHeader(targetServiceVersion) != null ||
+           Optional.ofNullable(request.getCookies())
+               .map(cookies -> Stream.of(cookies)
+                   .map(Cookie::getName)
+                   .anyMatch(requestCookieName::equalsIgnoreCase)
+               )
+               .orElse(false);
   }
 
   private String getBestMatchingVersion(Set<String> available, String latest, String version) {

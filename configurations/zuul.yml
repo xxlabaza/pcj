@@ -14,10 +14,10 @@ zuul:
     facade: /facade/**
 
 
-app:
-  metadata:
-    balancing:
-      rules:
-        facade:
-          '[1.0.0]': 0
-          # '[null]': 100
+# app:
+#   metadata:
+#     balancing:
+#       rules:
+#         facade:
+#           '[1.0.0]': 50
+#           '[1.1.0]': 50
