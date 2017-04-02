@@ -15,7 +15,7 @@
     <artifactId>eureka</artifactId>
     <packaging>jar</packaging>
     
-    <name>Eureka Service</name>
+    <name>Eureka</name>
     <description>
         Spring Boot Netflix OSS based eureka server
     </description>

@@ -15,7 +15,7 @@
     <artifactId>configserver</artifactId>
     <packaging>jar</packaging>
     
-    <name>Configuration Service</name>
+    <name>Configuration</name>
     <description>
         Spring Boot Cloud based configuration server
     </description>

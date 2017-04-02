@@ -15,7 +15,7 @@
     <artifactId>zuul</artifactId>
     <packaging>jar</packaging>
     
-    <name>Zuul Service</name>
+    <name>Zuul</name>
     <description>
         Spring Boot Netflix OSS based zuul proxy gateway
     </description>

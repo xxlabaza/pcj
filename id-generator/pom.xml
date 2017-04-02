@@ -15,7 +15,7 @@
     <artifactId>id-generator</artifactId>
     <packaging>jar</packaging>
     
-    <name>Id Generator Service</name>
+    <name>Id Generator</name>
     <description>
         Spring Boot Netflix OSS based id-generator service
     </description>

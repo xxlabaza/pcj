@@ -15,7 +15,7 @@
     <artifactId>facade</artifactId>
     <packaging>jar</packaging>
     
-    <name>Facade Service</name>
+    <name>Facade</name>
     <description>
         Spring Boot Netflix OSS based facade service
     </description>

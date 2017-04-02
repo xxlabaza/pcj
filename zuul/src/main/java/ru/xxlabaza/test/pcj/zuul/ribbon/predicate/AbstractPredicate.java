@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ import ru.xxlabaza.test.pcj.zuul.ribbon.PredicateContextHolder;
  * @since 23.03.2017
  */
 public abstract class AbstractPredicate extends AbstractServerPredicate
-    implements Comparable<AbstractPredicate>{
+    implements Comparable<AbstractPredicate> {
 
   private final int order;
 
