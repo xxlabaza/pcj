@@ -48,29 +48,38 @@ function wait_service () {
 
 function start () {
     SERVICE_NAME=${1}
-    SERVICE_PORT=${2}
+    SERVICE_ARGUMENTS=${2:-''}
 
-    echo "Building ${SERVICE_NAME}"
-    mvn --quiet --file ${SERVICE_NAME}/pom.xml clean package
-
-    echo "Starting ${SERVICE_NAME}"
+    echo "Starting ${SERVICE_NAME} ${SERVICE_ARGUMENTS}"
     nohup java -jar \
-        ${CURRENT_DIR}/${SERVICE_NAME}/target/*.jar  \
+        ${CURRENT_DIR}/${SERVICE_NAME}/target/*.jar \
+        ${SERVICE_ARGUMENTS}  \
         2>&1 > ${CURRENT_DIR}/logs/${SERVICE_NAME}.log &
+}
 
-    # Wait service's health check 'OK' if port set
-    if [[ ${SERVICE_PORT} ]];
-    then
-        wait_service ${SERVICE_NAME} ${SERVICE_PORT}
-    fi
+function startAndWait () {
+    SERVICE_NAME=${1}
+    SERVICE_PORT=${2}
+    SERVICE_ARGUMENTS=${3:-''}
+
+    start ${SERVICE_NAME} ${SERVICE_ARGUMENTS}
+    wait_service ${SERVICE_NAME} ${SERVICE_PORT}
 }
 
 
 ${CURRENT_DIR}/stop.sh
 trap "${CURRENT_DIR}/stop.sh; exit 1" SIGHUP SIGINT SIGQUIT SIGFPE SIGKILL SIGTERM ERR HUP INT TERM PIPE QUIT
 
+
+echo "Building all services"
+mvn --quiet --file ${CURRENT_DIR}/pom.xml clean package
+
+
 start "configserver"
-start "eureka" "9001"
-start "id-generator"
+startAndWait "eureka" "9001"
+# start "id-generator"
 start "facade"
-start "zuul" "9002"
+start "facade" "--spring.profiles.active=second"
+# start "facade" "--spring.profiles.active=third"
+# startAndWait "admin" "9003"
+startAndWait "zuul" "9002"

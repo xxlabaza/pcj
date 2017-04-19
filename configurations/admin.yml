@@ -1,0 +1,50 @@
+
+server:
+  port: 9003
+
+security:
+  basic.enabled: false
+
+management.security.enabled: false
+
+app:
+  user:
+    # passw0rd
+    admin: '{cipher}AQA7n0gcwwB0CVmoVX1yCPUE8110wmKa7eF4/UowOIDTpiIXe37EY4ojI2pTjDDWZee0PJvqu3r9Br2W7wxmq6/mcv3Ci7RDF8Q1p5iFQKZIZvppW6AHq2Ps/dARVSs2iUy8xqOqsY3s2D83Y1ShVniZcmiGv1xVPnCA96zAwYumQlUHPAJKZrksWBMvlOnmGph1OK8kWSkripIBev7Dvprm0wUiyIGhqL7SWcXL8iH6DgjhdKeV9zbkXfzXIf9jBk9GL+H74wp+C84voGQqvsjEcRUtiF6inCBIuyJ4eAcQQvwN58nCrR3QgoRU90Bq4HYDvBCpwP5ly3P/q6Q0JN90R2IB7loe1FLXL8SIrEdmY/YTWqFxfU5Cde0KMtKx1Zo='
+    # secret
+    beholder: '{cipher}AQA9zsfnVl+PtvRQ0abnaOqN3nVPeqHnn4ZmtWm53t5sBd1gqnhKud47kGmWTDDrUrMepa95YgklDlUmGJBKa1aae8bdgA+mzZVpxlH6ldboGI6F9nBVNWytH6M7kKDYxwtAEbjMcIKd/DQC+2+6EmM7b/Hs9TR0FcD3xWh+708/YDXQ51YcJDDIwwFPjO8xXzvUOT9sdWPptJnD+e0BW73KbiPd1en4xYAINQGcTRE+VielNKvnjy06VM02QokAPZc54vKrwJoQMbpCW/ckhVD8eVU/ZZP3SBCX4rDlnBbaUR6PELIE3szZnyf00xAaCpvtfgGs1/NqO9oD++Q5SOpTy99wnOxfyPFxFbz7sDr8NG/1JqTlUpZ3w2opoj2OeBc='
+
+turbine:
+  instanceUrlSuffix: ${management.context-path}/hystrix.stream
+  aggregator:
+    clusterConfig: ZUUL,FACADE
+  appConfig: zuul,facade
+
+# For more details see:
+# http://codecentric.github.io/spring-boot-admin/1.4.3/#_securing_spring_boot_admin_server
+spring:
+  mail:
+    host:       smtp.yandex.ru
+    port:       587
+    username:   xxlabaza@yandex.ru
+    password:   ArtLab90
+    properties:
+      mail:
+        smtp:
+          auth:             true
+          host:             smtp.yandex.ru
+          port:             587
+          starttls.enable:  true
+  boot:
+    admin:
+      discovery.converter.management-context-path: /admin
+      notify:
+        mail:
+          to: xxlabaza@gmail.com
+          from: xxlabaza@yandex.ru
+          subject: Your Spring Boot Admin
+      turbine:
+        clusters: ${turbine.aggregator.clusterConfig}
+        url: http://${HOSTNAME:localhost}:${server.port}/turbine.stream
+      routes:
+        endpoints: env,metrics,trace,dump,jolokia,info,configprops,logfile,refresh,heapdump,hystrix.stream,turbine.stream

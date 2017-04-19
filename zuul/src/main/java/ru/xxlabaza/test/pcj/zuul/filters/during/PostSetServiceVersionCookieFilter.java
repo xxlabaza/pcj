@@ -16,12 +16,13 @@
 package ru.xxlabaza.test.pcj.zuul.filters.during;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.DURING_ROUTING_HANDLING;
-import static ru.xxlabaza.test.pcj.zuul.ribbon.predicate.MetadataVersionPredicate.CURRENT_REQUEST_CONTEXT_VERSION;
+import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreTargetServiceVersionExtractorFilter.TARGET_SERVICE_VERSION_KEY;
 
 import com.netflix.zuul.context.RequestContext;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
 import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties;
 
@@ -41,8 +42,9 @@ class PostSetServiceVersionCookieFilter extends AbstractZuulFilter {
 
   @Override
   public boolean shouldFilter() {
-    val requestContext = RequestContext.getCurrentContext();
-    return requestContext.containsKey(CURRENT_REQUEST_CONTEXT_VERSION);
+    val request = RequestContext.getCurrentContext().getRequest();
+    val requestCookieName = metadataBalancingProperties.getRequestCookieName();
+    return WebUtils.getCookie(request, requestCookieName) != null;
   }
 
   @Override
@@ -52,7 +54,9 @@ class PostSetServiceVersionCookieFilter extends AbstractZuulFilter {
     val cookie = new StringBuilder()
         .append(metadataBalancingProperties.getResponseCookieName())
         .append('=')
-        .append(requestContext.get(CURRENT_REQUEST_CONTEXT_VERSION))
+        .append(requestContext.get(TARGET_SERVICE_VERSION_KEY)).append(';')
+        .append("domain=.jcpenney.com;")
+        .append("path=/")
         .toString();
 
     requestContext.addZuulResponseHeader("Set-Cookie", cookie);

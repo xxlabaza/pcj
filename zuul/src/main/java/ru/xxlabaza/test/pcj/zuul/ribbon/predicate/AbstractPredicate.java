@@ -22,7 +22,6 @@ import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import com.netflix.zuul.context.RequestContext;
 import lombok.val;
-import ru.xxlabaza.test.pcj.zuul.ribbon.PredicateContextHolder;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
@@ -30,6 +29,12 @@ import ru.xxlabaza.test.pcj.zuul.ribbon.PredicateContextHolder;
  */
 public abstract class AbstractPredicate extends AbstractServerPredicate
     implements Comparable<AbstractPredicate> {
+
+  private static final String IS_PROCESSED_BY_PREDICATE;
+
+  static {
+    IS_PROCESSED_BY_PREDICATE = "is_processed_by_predicate";
+  }
 
   private final int order;
 
@@ -39,13 +44,18 @@ public abstract class AbstractPredicate extends AbstractServerPredicate
 
   @Override
   public boolean apply(PredicateKey predicateKey) {
-    if (!PredicateContextHolder.isEmpty() && !PredicateContextHolder.get().equals(getClass().getName())) {
+//    if (!PredicateContextHolder.isEmpty() && !PredicateContextHolder.get().equals(getClass().getName())) {
+//      return true;
+//    }
+    RequestContext requestContext = RequestContext.getCurrentContext();
+    String className = requestContext.getOrDefault(IS_PROCESSED_BY_PREDICATE, "").toString();
+    if (!className.isEmpty() && !className.equals(getClass().getName())) {
       return true;
     }
 
-    val requestContext = RequestContext.getCurrentContext();
     if (shouldApply(requestContext)) {
-      PredicateContextHolder.set(getClass().getName());
+//      PredicateContextHolder.set(getClass().getName());
+      requestContext.set(IS_PROCESSED_BY_PREDICATE, className);
     } else {
       return true;
     }

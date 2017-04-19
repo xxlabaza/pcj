@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,8 @@ import org.springframework.cloud.netflix.ribbon.RibbonClients;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import ru.xxlabaza.test.pcj.zuul.ribbon.RibbonClientsConfiguration;
 
+import java.util.Arrays;
+
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 29.03.2017
@@ -33,6 +35,10 @@ import ru.xxlabaza.test.pcj.zuul.ribbon.RibbonClientsConfiguration;
 public class Main {
 
   public static void main (String[] args) {
-    SpringApplication.run(Main.class, args);
+    String classpath = System.getProperty("java.class.path").split(":")[0];
+    String appFolder = classpath.substring(0, classpath.lastIndexOf("/target"));
+    String[] newArgs = Arrays.copyOf(args, args.length + 1);
+    newArgs[newArgs.length - 1] = "--app.folder=" + appFolder;
+    SpringApplication.run(Main.class, newArgs);
   }
 }

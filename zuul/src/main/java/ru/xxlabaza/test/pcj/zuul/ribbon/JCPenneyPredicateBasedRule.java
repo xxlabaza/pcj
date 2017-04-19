@@ -42,7 +42,7 @@ public class JCPenneyPredicateBasedRule extends ZoneAvoidanceRule {
   @Override
   public Server choose(Object key) {
     Server server = super.choose(key);
-    PredicateContextHolder.remove();
+//    PredicateContextHolder.remove();
     return server;
   }
 

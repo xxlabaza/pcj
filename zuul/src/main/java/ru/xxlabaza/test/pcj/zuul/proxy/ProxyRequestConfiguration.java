@@ -15,9 +15,7 @@
  */
 package ru.xxlabaza.test.pcj.zuul.proxy;
 
-import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.trace.TraceRepository;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -33,6 +31,7 @@ import org.springframework.context.annotation.Primary;
 import ru.xxlabaza.test.pcj.zuul.AppProperties;
 
 import java.util.Set;
+import javax.annotation.PostConstruct;
 
 @Configuration
 class ProxyRequestConfiguration {
@@ -40,12 +39,9 @@ class ProxyRequestConfiguration {
   @Autowired
   private ZuulProperties zuulProperties;
 
-  @Autowired(required = false)
-  private TraceRepository traces;
-
   @Bean
   public RibbonCommandFactory ribbonCommandFactory(SpringClientFactory clientFactory) {
-    return new HttpClientRibbonCommandFactory(clientFactory);
+    return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties);
   }
 
   @Bean
@@ -57,9 +53,6 @@ class ProxyRequestConfiguration {
   @Primary
   public ProxyRequestHelper customProxyRequestHelper(AppProperties appProperties) {
     ProxyRequestHelper helper = new ProxyRequestHelper();
-    if (traces != null) {
-        helper.setTraces(traces);
-    }
 
     Set<String> ignoredHeaders = zuulProperties.getIgnoredHeaders();
     ignoredHeaders.removeAll(appProperties.getZuul().getHeadersAllowToPassThrough());
@@ -74,6 +67,7 @@ class ProxyRequestConfiguration {
   public static class PreZuulConfiguration {
 
     @Bean(name = "zuul.CONFIGURATION_PROPERTIES")
+    @Primary
     @RefreshScope
     @ConfigurationProperties("zuul")
     public ZuulProperties zuulProperties () {

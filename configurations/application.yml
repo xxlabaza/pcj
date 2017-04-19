@@ -5,7 +5,7 @@
 
 info:
   eureka:
-    region: ${eureka.client.region}
+    region: ${eureka.client.region:none}
     zone:   ${eureka.instance.metadataMap.zone}
 
 management:
@@ -24,6 +24,8 @@ endpoints:
 
 spring:
   jmx.enable: false
+
+logging.file: ${app.folder}/../logs/${spring.application.name}.log
 
 eureka:
   name:     eurekaserver

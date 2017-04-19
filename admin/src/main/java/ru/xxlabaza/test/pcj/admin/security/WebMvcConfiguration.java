@@ -13,36 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.xxlabaza.test.pcj.zuul.ribbon;
+
+package ru.xxlabaza.test.pcj.admin.security;
+
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
- * @since 26.03.2017
+ * @since 02.04.2017
  */
-public final class PredicateContextHolder {
+//@Configuration
+class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
-  private static final ThreadLocal<String> THREAD_LOCAL;
-
-  static {
-    THREAD_LOCAL = new ThreadLocal<>();
-  }
-
-  public static void set(String className) {
-    THREAD_LOCAL.set(className);
-  }
-
-  public static String get() {
-    return THREAD_LOCAL.get();
-  }
-
-  public static boolean isEmpty() {
-    return THREAD_LOCAL.get() == null;
-  }
-
-  public static void remove() {
-    THREAD_LOCAL.remove();
-  }
-
-  private PredicateContextHolder() {
+  @Override
+  public void addViewControllers (ViewControllerRegistry registry) {
+    registry.addViewController("/login").setViewName("login.html");
   }
 }

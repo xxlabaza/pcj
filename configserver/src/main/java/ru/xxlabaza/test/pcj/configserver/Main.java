@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,11 +15,12 @@
  */
 package ru.xxlabaza.test.pcj.configserver;
 
-import java.util.Arrays;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.config.server.EnableConfigServer;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+import java.util.Arrays;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>

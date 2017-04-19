@@ -18,15 +18,15 @@ package ru.xxlabaza.test.pcj.zuul.filters.pre;
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
 
 import com.netflix.zuul.context.RequestContext;
-import java.util.Optional;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
 import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties;
 
+import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 import javax.servlet.http.Cookie;
 
 /**
@@ -80,6 +80,13 @@ public class PreTargetServiceVersionExtractorFilter extends AbstractZuulFilter {
     return Optional.ofNullable(headerValue);
   }
 
+  private Optional<String> getServiceVersionCookieValue() {
+    val request = RequestContext.getCurrentContext().getRequest();
+    val requestCookieName = metadataBalancingProperties.getRequestCookieName();
+    return Optional.ofNullable(WebUtils.getCookie(request, requestCookieName))
+        .map(Cookie::getValue);
+  }
+
   private Optional<String> getServiceVersionUriValue() {
     val request = RequestContext.getCurrentContext().getRequest();
     val uri = request.getRequestURI();
@@ -87,16 +94,5 @@ public class PreTargetServiceVersionExtractorFilter extends AbstractZuulFilter {
     return matcher.find()
            ? Optional.of(matcher.group(1))
            : Optional.empty();
-  }
-
-  private Optional<String> getServiceVersionCookieValue() {
-    val request = RequestContext.getCurrentContext().getRequest();
-    val requestCookieName = metadataBalancingProperties.getRequestCookieName();
-    return Optional.ofNullable(request.getCookies())
-        .flatMap(cookies -> Stream.of(cookies)
-            .filter(it -> requestCookieName.equalsIgnoreCase(it.getName()))
-            .findAny()
-            .map(Cookie::getValue)
-        );
   }
 }

@@ -13,36 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.xxlabaza.test.pcj.zuul.ribbon;
+
+package ru.xxlabaza.test.pcj.admin;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
- * @since 26.03.2017
+ * @since 02.04.2017
  */
-public final class PredicateContextHolder {
+@Data
+@Component
+@ConfigurationProperties(prefix = "app")
+public class AppProperties {
 
-  private static final ThreadLocal<String> THREAD_LOCAL;
+  private User user = new User();
 
-  static {
-    THREAD_LOCAL = new ThreadLocal<>();
-  }
+  @Data
+  public static class User {
 
-  public static void set(String className) {
-    THREAD_LOCAL.set(className);
-  }
-
-  public static String get() {
-    return THREAD_LOCAL.get();
-  }
-
-  public static boolean isEmpty() {
-    return THREAD_LOCAL.get() == null;
-  }
-
-  public static void remove() {
-    THREAD_LOCAL.remove();
-  }
-
-  private PredicateContextHolder() {
+    private String beholder;
+    private String admin;
   }
 }

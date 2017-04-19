@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,10 +16,11 @@
 package ru.xxlabaza.test.pcj.zuul.filters.during;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.DURING_ROUTING_HANDLING;
+import static ru.xxlabaza.test.pcj.zuul.ribbon.predicate.MetadataVersionPredicate.CURRENT_REQUEST_CONTEXT_VERSION;
 
 import com.netflix.client.http.HttpResponse;
 import com.netflix.zuul.context.RequestContext;
-import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.xxlabaza.test.pcj.zuul.AppProperties;
@@ -29,16 +30,15 @@ import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 24.06.2016
  */
-@Slf4j
 @Component
 class PostAttachResponseProducerHostPortFilter extends AbstractZuulFilter {
 
-  private final String executorHostPortHeaderName;
+  @Autowired
+  private AppProperties appProperties;
 
   @Autowired
   PostAttachResponseProducerHostPortFilter (AppProperties appProperties) {
     super(DURING_ROUTING_HANDLING, 2000);
-    executorHostPortHeaderName = appProperties.getZuul().getExecutorHostPortHeaderName();
   }
 
   @Override
@@ -48,14 +48,20 @@ class PostAttachResponseProducerHostPortFilter extends AbstractZuulFilter {
 
   @Override
   protected void execute () {
-    RequestContext requestContext = RequestContext.getCurrentContext();
-    HttpResponse response = (HttpResponse) requestContext.get("ribbonResponse");
+    val requestContext = RequestContext.getCurrentContext();
+    val response = (HttpResponse) requestContext.get("ribbonResponse");
+    val headerName = appProperties.getZuul().getExecutorHostPortHeaderName();
 
-    requestContext.addZuulResponseHeader(executorHostPortHeaderName,
-                                         response.getRequestedURI().toString());
+    val headerValue = new StringBuilder()
+        .append(response.getRequestedURI())
+        .append(" (v ");
+    if (requestContext.containsKey(CURRENT_REQUEST_CONTEXT_VERSION)) {
+      headerValue.append(requestContext.get(CURRENT_REQUEST_CONTEXT_VERSION));
+    } else {
+      headerValue.append('0');
+    }
+    headerValue.append(')');
 
-    log.debug("Request to {} status {}",
-              response.getRequestedURI().toString(),
-              response.getStatus());
+    requestContext.addZuulResponseHeader(headerName, headerValue.toString());
   }
 }

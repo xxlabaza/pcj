@@ -113,3 +113,4 @@ nb-configuration.xml
 .DS_Store
 .vscode/
 logs/
+*.log

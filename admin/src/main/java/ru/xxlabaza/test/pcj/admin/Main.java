@@ -13,25 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.xxlabaza.test.pcj.id.generator;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+package ru.xxlabaza.test.pcj.admin;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.cloud.netflix.turbine.EnableTurbine;
 
 import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
- * @since 29.03.2017
+ * @since 02.04.2017
  */
-@Slf4j
-@RestController
+@EnableTurbine
+//@EnableAdminServer
 @EnableEurekaClient
 @SpringBootApplication
 public class Main {
@@ -42,14 +39,5 @@ public class Main {
     String[] newArgs = Arrays.copyOf(args, args.length + 1);
     newArgs[newArgs.length - 1] = "--app.folder=" + appFolder;
     SpringApplication.run(Main.class, newArgs);
-  }
-
-  @Value("${eureka.instance.metadataMap.version:0}")
-  private String version;
-
-  @RequestMapping("/")
-  public String generateId() {
-    log.error("Version: " + version);
-    return UUID.randomUUID().toString();
   }
 }

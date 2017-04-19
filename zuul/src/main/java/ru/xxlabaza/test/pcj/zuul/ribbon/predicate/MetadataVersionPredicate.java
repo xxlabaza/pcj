@@ -23,11 +23,13 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.context.RequestContext;
 import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.eureka.EurekaDiscoveryClient.EurekaServiceInstance;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties;
 import ru.xxlabaza.test.pcj.zuul.ribbon.MetadataBalancingProperties.Range;
 
@@ -35,12 +37,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Stream;
-import javax.servlet.http.Cookie;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
@@ -113,6 +111,12 @@ public class MetadataVersionPredicate extends AbstractPredicate {
         .filter(Objects::nonNull)
         .collect(toSet());
 
+    val isVersionMigration = isMigration(appName);
+    if (isVersionMigration) {
+      log.debug("{} has migration version", appName);
+      availableVersions.add("0");
+    }
+
     val latestVersion = availableVersions
         .stream()
         .map(DefaultArtifactVersion::new)
@@ -135,7 +139,7 @@ public class MetadataVersionPredicate extends AbstractPredicate {
         requestContext.set(CURRENT_REQUEST_CONTEXT_VERSION, version);
         return version;
       }
-      if (!isMigration(appName)) {
+      if (!isVersionMigration) {
         availableVersions.removeIf(it -> !it.startsWith(targetVersion));
       }
     }
@@ -150,16 +154,14 @@ public class MetadataVersionPredicate extends AbstractPredicate {
 
     val ranges = new HashMap<>(metadataBalancingProperties.getRanges().get(appName));
 
-    if (isMigration(appName)) {
-      log.debug("{} has migration version", appName);
-      val rangeRule = trafficRules.get(appName);
+    val rangeRule = trafficRules.get(appName);
+    if (isVersionMigration && !rangeRule.containsKey("0")) {
       val value = rangeRule.values().iterator().next();
       rangeRule.put("0", 100 - value);
       ranges.put("0", new Range(value, 100));
-      availableVersions.add("0");
     }
 
-    val bound = trafficRules.get(appName).values().stream().mapToInt(it -> it).sum();
+    val bound = rangeRule.values().stream().mapToInt(it -> it).sum();
     val value = RANDOM.nextInt(bound);
     log.debug("Random value is {}", value);
     val version = ranges
@@ -185,12 +187,7 @@ public class MetadataVersionPredicate extends AbstractPredicate {
     val targetServiceVersion = metadataBalancingProperties.getHeaderName();
     val requestCookieName = metadataBalancingProperties.getRequestCookieName();
     return request.getHeader(targetServiceVersion) != null ||
-           Optional.ofNullable(request.getCookies())
-               .map(cookies -> Stream.of(cookies)
-                   .map(Cookie::getName)
-                   .anyMatch(requestCookieName::equalsIgnoreCase)
-               )
-               .orElse(false);
+           WebUtils.getCookie(request, requestCookieName) != null;
   }
 
   private String getBestMatchingVersion(Set<String> available, String latest, String version) {
@@ -220,6 +217,6 @@ public class MetadataVersionPredicate extends AbstractPredicate {
         .map(it -> it.getMetadata().get("version"))
         .anyMatch(Objects::isNull);
 
-    return ranges.size() == 1 && hasOldVersions;
+    return (ranges.size() == 1 || ranges.containsKey("0")) && hasOldVersions;
   }
 }

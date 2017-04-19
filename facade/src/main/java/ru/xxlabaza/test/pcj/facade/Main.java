@@ -15,15 +15,20 @@
  */
 package ru.xxlabaza.test.pcj.facade;
 
-import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.xxlabaza.test.pcj.facade.remote.IdGeneratorService;
+
+import java.util.Arrays;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
@@ -32,11 +37,16 @@ import ru.xxlabaza.test.pcj.facade.remote.IdGeneratorService;
 @RestController
 @EnableFeignClients
 @EnableEurekaClient
+@EnableCircuitBreaker
 @SpringBootApplication
 public class Main {
 
   public static void main (String[] args) {
-    SpringApplication.run(Main.class, args);
+    String classpath = System.getProperty("java.class.path").split(":")[0];
+    String appFolder = classpath.substring(0, classpath.lastIndexOf("/target"));
+    String[] newArgs = Arrays.copyOf(args, args.length + 1);
+    newArgs[newArgs.length - 1] = "--app.folder=" + appFolder;
+    SpringApplication.run(Main.class, newArgs);
   }
 
   @Autowired
@@ -45,6 +55,11 @@ public class Main {
   @RequestMapping("/")
   public void returnOk(HttpServletResponse response) {
     response.addHeader("X-Frame-Options", "SAMEORIGIN");
+  }
+
+  @PostMapping("/")
+  public String doPost(@RequestBody Pojo pojo) {
+    return pojo.toString();
   }
 
   @RequestMapping("/id")

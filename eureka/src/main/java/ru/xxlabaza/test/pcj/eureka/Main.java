@@ -19,6 +19,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
+import java.util.Arrays;
+
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 29.03.2017
@@ -28,6 +30,10 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 public class Main {
 
     public static void main (String[] args) {
-        SpringApplication.run(Main.class, args);
+    String classpath = System.getProperty("java.class.path").split(":")[0];
+    String appFolder = classpath.substring(0, classpath.lastIndexOf("/target"));
+    String[] newArgs = Arrays.copyOf(args, args.length + 1);
+    newArgs[newArgs.length - 1] = "--app.folder=" + appFolder;
+    SpringApplication.run(Main.class, newArgs);
     }
 }

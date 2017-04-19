@@ -40,7 +40,7 @@ public class MetadataBalancingProperties {
 
   private String headerName = "X-Service-Version";
   private String requestCookieName = "SVCVER";
-  private String responseCookieName = "ExecutedServiceVersion";
+  private String responseCookieName = "SVCVER";
   private Map<String, Map<String, Integer>> rules;
   private Map<String, Map<String, Range>> ranges;
 

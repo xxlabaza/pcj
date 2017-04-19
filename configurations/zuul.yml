@@ -10,14 +10,27 @@ logging.level:
 zuul:
   ignoredServices: '*'
   prefix: /api
+  # stripPrefix: false
   routes:
-    facade: /facade/**
+    facade: /v1/facade/**
+    popa:
+      path: /**
+      url: http://google.com
 
 
-# app:
-#   metadata:
-#     balancing:
-#       rules:
-#         facade:
-#           '[1.0.0]': 50
-#           '[1.1.0]': 50
+app:
+  metadata:
+    balancing:
+      rules:
+        facade:
+          '[0]': 100
+          '[1.0.0]': 0
+  zuul:
+    trafficRules:
+      facade:
+        blue: 100
+        green: 0
+      popa:
+        blue: 100
+        green: 0
+
