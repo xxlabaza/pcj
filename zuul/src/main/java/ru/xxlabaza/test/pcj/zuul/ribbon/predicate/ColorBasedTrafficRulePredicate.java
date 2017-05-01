@@ -16,20 +16,24 @@
 package ru.xxlabaza.test.pcj.zuul.ribbon.predicate;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreTargetColorHeaderExtractorFilter.TARGET_COLOR_KEY;
+import static ru.xxlabaza.test.pcj.zuul.ribbon.predicate.PredicateOrders.COLOR_BASED_TRAFFIC_RULE_ORDER;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.context.RequestContext;
-import java.util.Random;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.xxlabaza.test.pcj.zuul.AppProperties;
 
+import java.util.Random;
+
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 02.03.2017
  */
+@Slf4j
 @Component
 class ColorBasedTrafficRulePredicate extends AbstractPredicate {
 
@@ -49,7 +53,7 @@ class ColorBasedTrafficRulePredicate extends AbstractPredicate {
   private AppProperties appProperties;
 
   ColorBasedTrafficRulePredicate() {
-    super(700);
+    super(COLOR_BASED_TRAFFIC_RULE_ORDER);
   }
 
   @Override
@@ -66,7 +70,9 @@ class ColorBasedTrafficRulePredicate extends AbstractPredicate {
 
     val appName = instanceInfo.getAppName();
     val appColor = metadata.get(CONTAINER_COLOR_KEY_NAME);
+    log.debug("App color: {}", appColor);
     val requestContextColor = getRequestContextColor(appName);
+    log.debug("Request context color is: {}", requestContextColor);
     return requestContextColor != null
            ? appColor.equalsIgnoreCase(requestContextColor)
            : true;
@@ -80,14 +86,18 @@ class ColorBasedTrafficRulePredicate extends AbstractPredicate {
 
     val targetColor = requestContext.getOrDefault(TARGET_COLOR_KEY, "").toString();
     if (!targetColor.isEmpty()) {
+      log.debug("Target color is not set");
       requestContext.set(CURRENT_REQUEST_CONTEXT_COLOR_KEY, targetColor);
       return targetColor;
     }
+    log.debug("Target color: {}", targetColor);
 
     val trafficRules = appProperties.getZuul().getTrafficRules();
     if (trafficRules == null || !trafficRules.containsKey(appName)) {
+      log.debug("There are not traffic rules for: {}", appName);
       return null;
     }
+    log.debug("Traffic rules are detected for: {}", appName);
 
     val trafficRule = trafficRules.get(appName);
     val nextInt = RANDOM.nextInt(trafficRule.getBlue() + trafficRule.getGreen());

@@ -21,12 +21,14 @@ import com.netflix.loadbalancer.PredicateKey;
 import com.netflix.loadbalancer.Server;
 import com.netflix.niws.loadbalancer.DiscoveryEnabledServer;
 import com.netflix.zuul.context.RequestContext;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 23.03.2017
  */
+@Slf4j
 public abstract class AbstractPredicate extends AbstractServerPredicate
     implements Comparable<AbstractPredicate> {
 
@@ -44,19 +46,21 @@ public abstract class AbstractPredicate extends AbstractServerPredicate
 
   @Override
   public boolean apply(PredicateKey predicateKey) {
-//    if (!PredicateContextHolder.isEmpty() && !PredicateContextHolder.get().equals(getClass().getName())) {
-//      return true;
-//    }
-    RequestContext requestContext = RequestContext.getCurrentContext();
-    String className = requestContext.getOrDefault(IS_PROCESSED_BY_PREDICATE, "").toString();
-    if (!className.isEmpty() && !className.equals(getClass().getName())) {
+    val requestContext = RequestContext.getCurrentContext();
+    val processedBy = requestContext.getOrDefault(IS_PROCESSED_BY_PREDICATE, "").toString();
+    val predicateClass = getClass().getName();
+
+    log.debug("It is processed by: '{}'", processedBy);
+    if (!processedBy.isEmpty() && !processedBy.equals(predicateClass)) {
+      log.debug("{} doesn't match", predicateClass);
       return true;
     }
 
     if (shouldApply(requestContext)) {
-//      PredicateContextHolder.set(getClass().getName());
-      requestContext.set(IS_PROCESSED_BY_PREDICATE, className);
+      log.debug("Predicate {} is applied", predicateClass);
+      requestContext.set(IS_PROCESSED_BY_PREDICATE, predicateClass);
     } else {
+      log.debug("Predicate {} is not applied", predicateClass);
       return true;
     }
 

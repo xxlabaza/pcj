@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,17 +16,19 @@
 package ru.xxlabaza.test.pcj.zuul.filters.pre;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
+import static ru.xxlabaza.test.pcj.zuul.filters.FiltersOrder.PRE_YODA_COOKIE;
 
 import com.netflix.zuul.context.RequestContext;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Stream;
-import javax.servlet.http.Cookie;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.xxlabaza.test.pcj.zuul.AppProperties;
 import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
+
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
+import javax.servlet.http.Cookie;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
@@ -42,7 +44,7 @@ public class PreYodaCookieFilter extends AbstractZuulFilter {
   private AppProperties appProperties;
 
   PreYodaCookieFilter () {
-    super(PRE_ROUTING_HANDLING, 503);
+    super(PRE_ROUTING_HANDLING, PRE_YODA_COOKIE);
   }
 
   @Override

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package ru.xxlabaza.test.pcj.zuul.filters.pre;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
+import static ru.xxlabaza.test.pcj.zuul.filters.FiltersOrder.PRE_TARGET_HOST_PORT_HEADER_EXCTRACTOR_ORDER;
 
 import com.netflix.zuul.context.RequestContext;
 import lombok.val;
@@ -33,7 +34,7 @@ public class PreTargetHostPortHeaderExctractorFilter extends AbstractZuulFilter 
   private AppProperties appProperties;
 
   PreTargetHostPortHeaderExctractorFilter () {
-    super(PRE_ROUTING_HANDLING, 502);
+    super(PRE_ROUTING_HANDLING, PRE_TARGET_HOST_PORT_HEADER_EXCTRACTOR_ORDER);
   }
 
   @Override

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +15,8 @@
  */
 package ru.xxlabaza.test.pcj.zuul.filters.pre;
 
+import static ru.xxlabaza.test.pcj.zuul.filters.FiltersOrder.PRE_REQUEST_ID_ORDER;
+
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import java.util.Objects;
@@ -22,10 +24,11 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Slf4j
-//@Component
+// @Component
 public class PreRequestIdFilter extends ZuulFilter {
 
   @Override
@@ -46,7 +49,7 @@ public class PreRequestIdFilter extends ZuulFilter {
 
   @Override
   public int filterOrder() {
-    return 1500;
+    return PRE_REQUEST_ID_ORDER;
   }
 
   protected void execute() {

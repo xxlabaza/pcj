@@ -36,7 +36,8 @@ eureka:
     statusPageUrlPath:  ${management.context-path}/info
     healthCheckUrlPath: ${management.context-path}/health
     metadataMap:
-      zone: ${app.zone:none} # active profile is zone name
+      zone: ${spring.profiles.active:none} # active profile is zone name
+      # zone: ${app.zone:none}
   client:
     # region: my_region
     # availabilityZones:
@@ -48,3 +49,11 @@ eureka:
 
 ribbon:
   EnableZoneAffinity: true
+
+app:
+  eureka:
+    active-colors:
+      facade: {blue: false, green: true}
+  zuul:
+    traffic-rules:
+      facade: {blue: 0, green: 100}

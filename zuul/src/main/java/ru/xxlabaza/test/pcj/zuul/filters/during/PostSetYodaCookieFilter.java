@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package ru.xxlabaza.test.pcj.zuul.filters.during;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.DURING_ROUTING_HANDLING;
+import static ru.xxlabaza.test.pcj.zuul.filters.FiltersOrder.POST_SET_YODA_COOKIE_ORDER;
 import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreYodaCookieFilter.YODA_NEED_SET_COOKIE_KEY;
 import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreYodaCookieFilter.YODA_SID_KEY;
 
@@ -37,7 +38,7 @@ class PostSetYodaCookieFilter extends AbstractZuulFilter {
   private AppProperties appProperties;
 
   PostSetYodaCookieFilter() {
-    super(DURING_ROUTING_HANDLING, 2001);
+    super(DURING_ROUTING_HANDLING, POST_SET_YODA_COOKIE_ORDER);
   }
 
   @Override

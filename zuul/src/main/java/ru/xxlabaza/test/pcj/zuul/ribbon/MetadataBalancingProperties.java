@@ -39,8 +39,8 @@ import java.util.Map.Entry;
 public class MetadataBalancingProperties {
 
   private String headerName = "X-Service-Version";
-  private String requestCookieName = "SVCVER";
-  private String responseCookieName = "SVCVER";
+  private String requestCookieName = "SVCIMPLVER";
+  private String responseCookieName = "SVCIMPLVER";
   private Map<String, Map<String, Integer>> rules;
   private Map<String, Map<String, Range>> ranges;
 

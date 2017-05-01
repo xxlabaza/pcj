@@ -40,13 +40,6 @@ public class JCPenneyPredicateBasedRule extends ZoneAvoidanceRule {
   private List<AbstractPredicate> predicates;
 
   @Override
-  public Server choose(Object key) {
-    Server server = super.choose(key);
-//    PredicateContextHolder.remove();
-    return server;
-  }
-
-  @Override
   public AbstractServerPredicate getPredicate() {
     if (predicate == null) {
       predicate = createPredicate();

@@ -17,7 +17,8 @@ package ru.xxlabaza.test.pcj.zuul.ribbon.predicate;
 
 import static com.netflix.appinfo.InstanceInfo.InstanceStatus.UP;
 import static java.util.stream.Collectors.toSet;
-import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreTargetServiceVersionExtractorFilter.TARGET_SERVICE_VERSION_KEY;
+import static ru.xxlabaza.test.pcj.zuul.filters.pre.version.AbstractTargetServiceVersionExctractorFilter.TARGET_SERVICE_VERSION_KEY;
+import static ru.xxlabaza.test.pcj.zuul.ribbon.predicate.PredicateOrders.MATADATA_VERSION_ORDER;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;
@@ -64,7 +65,7 @@ public class MetadataVersionPredicate extends AbstractPredicate {
   private DiscoveryClient discoveryClient;
 
   public MetadataVersionPredicate() {
-    super(500);
+    super(MATADATA_VERSION_ORDER);
   }
 
   @Override
@@ -78,7 +79,11 @@ public class MetadataVersionPredicate extends AbstractPredicate {
   @Override
   protected boolean apply(Server server, InstanceInfo instanceInfo) {
     val appName = instanceInfo.getAppName().toLowerCase();
-    val appVersion = instanceInfo.getMetadata().getOrDefault("version", "0");
+    val metadata = instanceInfo.getMetadata();
+    if (metadata == null) {
+      return true;
+    }
+    val appVersion = metadata.getOrDefault("version", "0");
     log.debug("Checking service '{}:{}'", appName, appVersion);
 
     val requestContextVersion = getRequestContextServiceVersion(appName, appVersion);
@@ -87,9 +92,9 @@ public class MetadataVersionPredicate extends AbstractPredicate {
                   : true;
 
     if (result) {
-      log.info("Service '{}:{}' was chosen", appName, appVersion);
+      log.debug("Service '{}:{}' was chosen", instanceInfo.getHostName(), appVersion);
     } else {
-      log.info("Service '{}:{}' was not chosen", appName, appVersion);
+      log.debug("Service '{}:{}' was not chosen", instanceInfo.getHostName(), appVersion);
     }
     return result;
   }
@@ -107,7 +112,9 @@ public class MetadataVersionPredicate extends AbstractPredicate {
         .filter(it -> it instanceof EurekaServiceInstance)
         .map(it -> ((EurekaServiceInstance) it).getInstanceInfo())
         .filter(it -> it.getStatus() == UP)
-        .map(it -> it.getMetadata().get("version"))
+        .map(it -> it.getMetadata())
+        .filter(Objects::nonNull)
+        .map(it -> it.get("version"))
         .filter(Objects::nonNull)
         .collect(toSet());
 

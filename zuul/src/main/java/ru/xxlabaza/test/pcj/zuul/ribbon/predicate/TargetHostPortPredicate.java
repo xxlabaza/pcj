@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,12 @@ package ru.xxlabaza.test.pcj.zuul.ribbon.predicate;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreTargetHostHeaderExctractorFilter.TARGET_HOST_KEY;
 import static ru.xxlabaza.test.pcj.zuul.filters.pre.PreTargetHostPortHeaderExctractorFilter.TARGET_HOST_PORT_KEY;
+import static ru.xxlabaza.test.pcj.zuul.ribbon.predicate.PredicateOrders.TARGET_HOST_PORT_ORDER;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.loadbalancer.Server;
 import com.netflix.zuul.context.RequestContext;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.stereotype.Component;
 
@@ -28,11 +30,12 @@ import org.springframework.stereotype.Component;
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 02.03.2017
  */
+@Slf4j
 @Component
 class TargetHostPortPredicate extends AbstractPredicate {
 
   TargetHostPortPredicate() {
-    super(400);
+    super(TARGET_HOST_PORT_ORDER);
   }
 
   @Override
@@ -47,11 +50,15 @@ class TargetHostPortPredicate extends AbstractPredicate {
 
     val targetHost = requestContext.getOrDefault(TARGET_HOST_KEY, "").toString();
     if (!targetHost.isEmpty()) {
+      log.debug("Server host: {}", server.getHost());
+      log.debug("Target host: {}", targetHost);
       return server.getHost().equals(targetHost);
     }
 
     val targetHostPort = requestContext.getOrDefault(TARGET_HOST_PORT_KEY, "").toString();
     if (!targetHostPort.isEmpty()) {
+      log.debug("Server host port: {}", server.getHostPort());
+      log.debug("Target host port: {}", targetHostPort);
       return server.getHostPort().equals(targetHostPort);
     }
     return false;

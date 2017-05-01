@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package ru.xxlabaza.test.pcj.zuul.filters.pre;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
+import static ru.xxlabaza.test.pcj.zuul.filters.FiltersOrder.PRE_PEND_PATH_ORDER;
 
 import com.netflix.zuul.context.RequestContext;
 import java.nio.file.Path;
@@ -23,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
 
 /**
@@ -33,7 +35,7 @@ import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
  * @author Devron Thompson
  */
 @Slf4j
-//@Component
+// @Component
 class PrePendPathFilter extends AbstractZuulFilter {
 
   private static final String REQUEST_URI_KEY;
@@ -49,7 +51,7 @@ class PrePendPathFilter extends AbstractZuulFilter {
   private List<String> skipAddPrefix;
 
   PrePendPathFilter() {
-    super(PRE_ROUTING_HANDLING, 1110);
+    super(PRE_ROUTING_HANDLING, PRE_PEND_PATH_ORDER);
   }
 
   @Override

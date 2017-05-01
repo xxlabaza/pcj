@@ -1,17 +1,17 @@
 
 server:
   port: 9090
-  # context-path: /api/v1/facade/
+  # context-path: /api/v1/facade
 
 security.basic.enabled: false
 
 logging.level:
   ru.xxlabaza.test.pcj.balancing.predicate: DEBUG
 
-eureka:
-  instance:
-    metadataMap:
-      container.color: blue
+# eureka:
+#   instance:
+#     metadataMap:
+#       container.color: blue
 
 app:
   metadata:
@@ -31,7 +31,7 @@ eureka:
   instance:
     metadataMap:
       version: '1.0.0'
-      container.color: green
+      # container.color: green
 
 ---
 spring:
@@ -44,3 +44,4 @@ eureka:
   instance:
     metadataMap:
       version: '1.1.0'
+      # container.color: blue

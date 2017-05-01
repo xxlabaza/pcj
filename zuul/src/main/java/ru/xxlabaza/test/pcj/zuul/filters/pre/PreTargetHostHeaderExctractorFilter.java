@@ -16,8 +16,10 @@
 package ru.xxlabaza.test.pcj.zuul.filters.pre;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
+import static ru.xxlabaza.test.pcj.zuul.filters.FiltersOrder.PRE_TARGET_HOST_HEADER_EXCTRACTOR_ORDER;
 
 import com.netflix.zuul.context.RequestContext;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -28,6 +30,7 @@ import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 02.03.2017
  */
+@Slf4j
 @Component
 public class PreTargetHostHeaderExctractorFilter extends AbstractZuulFilter {
 
@@ -37,7 +40,7 @@ public class PreTargetHostHeaderExctractorFilter extends AbstractZuulFilter {
   private AppProperties appProperties;
 
   PreTargetHostHeaderExctractorFilter () {
-    super(PRE_ROUTING_HANDLING, 501);
+    super(PRE_ROUTING_HANDLING, PRE_TARGET_HOST_HEADER_EXCTRACTOR_ORDER);
   }
 
   @Override
@@ -53,6 +56,7 @@ public class PreTargetHostHeaderExctractorFilter extends AbstractZuulFilter {
     val currentContext = RequestContext.getCurrentContext();
     val targetHostHeaderName = appProperties.getZuul().getTargetHostHeaderName();
     val value = currentContext.getRequest().getHeader(targetHostHeaderName);
+    log.debug("Target host is: {}", value);
     currentContext.set(TARGET_HOST_KEY, value);
   }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +16,7 @@
 package ru.xxlabaza.test.pcj.zuul.filters.pre;
 
 import static ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter.ZuulFilterType.PRE_ROUTING_HANDLING;
+import static ru.xxlabaza.test.pcj.zuul.filters.FiltersOrder.PRE_TARGET_COLOR_HEADER_EXTRACTOR_ORDER;
 
 import com.netflix.zuul.context.RequestContext;
 import lombok.val;
@@ -37,7 +38,7 @@ public class PreTargetColorHeaderExtractorFilter extends AbstractZuulFilter {
   private AppProperties appProperties;
 
   PreTargetColorHeaderExtractorFilter () {
-    super(PRE_ROUTING_HANDLING, 500);
+    super(PRE_ROUTING_HANDLING, PRE_TARGET_COLOR_HEADER_EXTRACTOR_ORDER);
   }
 
   @Override

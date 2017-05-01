@@ -13,36 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ru.xxlabaza.test.pcj.zuul.ribbon;
+
+package ru.xxlabaza.test.pcj.zuul.filters.pre.version;
+
+import com.netflix.zuul.context.RequestContext;
+import lombok.val;
+import ru.xxlabaza.test.pcj.zuul.filters.AbstractZuulFilter;
 
 /**
  * @author Artem Labazin <xxlabaza@gmail.com>
- * @since 26.03.2017
+ * @since 29.04.2017
  */
-public final class PredicateContextHolder {
+public abstract class AbstractTargetServiceVersionExctractorFilter extends AbstractZuulFilter {
 
-  private static final ThreadLocal<String> THREAD_LOCAL;
+  public static final String TARGET_SERVICE_VERSION_KEY = "targetServiceVersion";
 
-  static {
-    THREAD_LOCAL = new ThreadLocal<>();
+  AbstractTargetServiceVersionExctractorFilter(ZuulFilterType type, int order) {
+    super(type, order);
   }
 
-  public static void set(String className) {
-    THREAD_LOCAL.set(className);
-  }
-
-  public static String get() {
-    return THREAD_LOCAL.get();
-  }
-
-  public static boolean isEmpty() {
-    return THREAD_LOCAL.get() == null;
-  }
-
-  public static void remove() {
-    THREAD_LOCAL.remove();
-  }
-
-  private PredicateContextHolder() {
+  @Override
+  public boolean shouldFilter() {
+    val requestContext = RequestContext.getCurrentContext();
+    return !requestContext.containsKey(TARGET_SERVICE_VERSION_KEY);
   }
 }

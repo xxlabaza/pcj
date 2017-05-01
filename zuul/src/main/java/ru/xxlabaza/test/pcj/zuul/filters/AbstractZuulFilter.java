@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,8 +15,12 @@
  */
 package ru.xxlabaza.test.pcj.zuul.filters;
 
+import static java.lang.Boolean.TRUE;
+
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
+import lombok.val;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 
 /**
@@ -24,6 +28,9 @@ import org.springframework.http.HttpStatus;
  * @since 24.06.2016
  */
 public abstract class AbstractZuulFilter extends ZuulFilter {
+
+  @Autowired
+  private FilterProperties filterProperties;
 
   private final ZuulFilterType type;
 
@@ -51,13 +58,18 @@ public abstract class AbstractZuulFilter extends ZuulFilter {
 
   @Override
   public final Object run() {
-    execute();
-    return Boolean.TRUE;
+    val serviceId = RequestContext.getCurrentContext().getOrDefault("serviceId", "").toString();
+    val filterClassName = getClass().getSimpleName();
+    if (!filterProperties.getRoutes().containsKey(serviceId) ||
+        !filterProperties.getRoutes().get(serviceId).getDisableFilters().contains(filterClassName)) {
+      execute();
+    }
+    return TRUE;
   }
 
   protected boolean is2xxSuccessfulResponse() {
-    int statusValue = RequestContext.getCurrentContext().getResponse().getStatus();
-    HttpStatus status = HttpStatus.valueOf(statusValue);
+    val statusValue = RequestContext.getCurrentContext().getResponse().getStatus();
+    val status = HttpStatus.valueOf(statusValue);
     return status.is2xxSuccessful();
   }
 
