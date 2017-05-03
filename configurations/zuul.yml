@@ -6,6 +6,7 @@ security.basic.enabled: false
 
 logging.level:
   ru.xxlabaza.test.pcj.zuul.ribbon.predicate: DEBUG
+  com.netflix.loadbalancer: DEBUG
 
 zuul:
   ignoredServices: '*'
@@ -14,9 +15,9 @@ zuul:
     facade:
       path: /v1/facade/**
       serviceId: facade
-      disable-filters: !
-        PreTargetServiceVersionExtractorFilter
-        AnotherFilter
+      # disable-filters: !
+      #   PreTargetServiceVersionExtractorFilter
+      #   AnotherFilter
     popa: /lolo/**
     # popa:
     #   serviceId: popa
@@ -29,8 +30,8 @@ app:
     balancing:
       rules:
         facade:
-          '[1.0.0]': 100 # green
-          '[1.1.0]': 0 # blue
+          '[1.0.0]': 0 # blue
+          '[0]': 100 # green
   zuul:
     trafficRules:
       facade:

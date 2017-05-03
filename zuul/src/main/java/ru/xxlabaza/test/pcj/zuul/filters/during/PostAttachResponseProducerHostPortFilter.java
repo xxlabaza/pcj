@@ -51,7 +51,8 @@ class PostAttachResponseProducerHostPortFilter extends AbstractZuulFilter {
 
   @Override
   public boolean shouldFilter () {
-    return true;
+    val requestContext = RequestContext.getCurrentContext();
+    return requestContext.get("ribbonResponse") != null;
   }
 
   @Override

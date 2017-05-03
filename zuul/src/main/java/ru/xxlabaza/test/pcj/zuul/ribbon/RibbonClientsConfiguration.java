@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,10 @@ package ru.xxlabaza.test.pcj.zuul.ribbon;
 
 import com.netflix.client.config.IClientConfig;
 import com.netflix.loadbalancer.IRule;
+import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ServerList;
+import com.netflix.loadbalancer.ServerListFilter;
+import java.util.List;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.ribbon.eureka.DomainExtractingServerList;
@@ -41,5 +44,10 @@ public class RibbonClientsConfiguration {
     return new DomainExtractingServerList(discoveryServerList,
                                           config,
                                           approximateZoneFromHostname);
+  }
+
+  @Bean
+  public ServerListFilter<Server> ribbonServerListFilter() {
+    return (List<Server> servers) -> servers;
   }
 }

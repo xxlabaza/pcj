@@ -63,7 +63,7 @@ class PostSetServiceVersionCookieFilter extends AbstractZuulFilter {
   protected void execute() {
     val requestContext = RequestContext.getCurrentContext();
 
-    Calendar calendar = Calendar.getInstance();
+    val calendar = Calendar.getInstance();
     calendar.setTime(new Date());
     calendar.add(DATE, 1);
 
