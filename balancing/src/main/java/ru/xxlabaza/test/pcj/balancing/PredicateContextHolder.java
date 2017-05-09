@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2017 Artem Labazin <xxlabaza@gmail.com>.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,7 +27,7 @@ public final class PredicateContextHolder extends ConcurrentHashMap<String, Obje
 
   private static final ThreadLocal<PredicateContextHolder> THREAD_LOCAL = new ThreadLocal<PredicateContextHolder>() {
 
-    @Override
+      @Override
       protected PredicateContextHolder initialValue() {
           try {
               return new PredicateContextHolder();
