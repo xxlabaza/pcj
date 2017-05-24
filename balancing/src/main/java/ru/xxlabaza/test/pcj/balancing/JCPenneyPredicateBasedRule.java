@@ -15,10 +15,13 @@
  */
 package ru.xxlabaza.test.pcj.balancing;
 
+import static ru.xxlabaza.test.pcj.balancing.predicate.MetadataVersionPredicate.CURRENT_REQUEST_CONTEXT_VERSION;
 
 import com.netflix.loadbalancer.AbstractServerPredicate;
 import com.netflix.loadbalancer.CompositePredicate;
+import com.netflix.loadbalancer.Server;
 import com.netflix.loadbalancer.ZoneAvoidanceRule;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,6 +32,7 @@ import java.util.List;
  * @author Artem Labazin <xxlabaza@gmail.com>
  * @since 22.06.2016
  */
+@Slf4j
 public class JCPenneyPredicateBasedRule extends ZoneAvoidanceRule {
 
   private CompositePredicate predicate;
@@ -44,9 +48,22 @@ public class JCPenneyPredicateBasedRule extends ZoneAvoidanceRule {
     return predicate;
   }
 
+  @Override
+  public Server choose (Object key) {
+    Server result = super.choose(key);
+    PredicateContextHolder currentContext = PredicateContextHolder.getCurrentContext();
+    if (currentContext != null && currentContext.containsKey(CURRENT_REQUEST_CONTEXT_VERSION)) {
+        log.debug("Remove current service version from context: {}",
+                  currentContext.get(CURRENT_REQUEST_CONTEXT_VERSION));
+        currentContext.remove(CURRENT_REQUEST_CONTEXT_VERSION);
+    }
+    return result;
+  }
+
   private CompositePredicate createPredicate() {
     val linkedList = new LinkedList<>(predicates);
-    linkedList.addLast(super.getPredicate());
+    // turn off zone avoidance:
+    // linkedList.addLast(super.getPredicate());
     val array = linkedList.toArray(new AbstractServerPredicate[linkedList.size()]);
     return CompositePredicate.withPredicates(array).build();
   }
